@@ -13,8 +13,6 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		// The other servers do not return a content type.
-		w.Header()["Content-Type"] = nil
 		w.Write(b)
 	}))
 }

@@ -1,0 +1,39 @@
+{
+  "version": "3",
+  "packages": {
+    "specifiers": {
+      "npm:child-process-worker-pool@^0.0.2": "npm:child-process-worker-pool@0.0.2",
+      "npm:lightning-pool@^4.2.2": "npm:lightning-pool@4.2.2"
+    },
+    "npm": {
+      "child-process-worker-pool@0.0.2": {
+        "integrity": "sha512-q33hkgo517i4x4WFjIpSH/Wyw4S2QXMqrwS7dGd1sYokr/Jq+L6EYec5RTlkSYEcFFCk/TkNl+2g7qvnfnsolg==",
+        "dependencies": {}
+      },
+      "doublylinked@2.5.4": {
+        "integrity": "sha512-jBCKDnFkEHJRjQvYEl5N9VngRV8ypHgw6a52OK4VN57eV2r2rYvgOx9uABdY78INNoW7S6auULp+KBVm/jfYqw==",
+        "dependencies": {}
+      },
+      "lightning-pool@4.2.2": {
+        "integrity": "sha512-KW0Df0IbjNLxy5wAsdErTKYtHGwefLRQseHNksEctyaL7gtRwJT0nqLa2uiRdNYDwKSnZtqOjSjUNtfxmfH1qw==",
+        "dependencies": {
+          "doublylinked": "doublylinked@2.5.4",
+          "putil-promisify": "putil-promisify@1.10.1"
+        }
+      },
+      "putil-promisify@1.10.1": {
+        "integrity": "sha512-1jm0egJNrj5eBDRj15Cg08RNHDV91OVEHeeYjAFRcs663PXxFokndxcJAGbaO6CSErCTp8eTgC8vuOF+fvXIAA==",
+        "dependencies": {}
+      }
+    }
+  },
+  "remote": {},
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:child-process-worker-pool@^0.0.2",
+        "npm:lightning-pool@^4.2.2"
+      ]
+    }
+  }
+}

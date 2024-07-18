@@ -1,37 +1,10 @@
-import assert from "node:assert";
 import http from "node:http";
 import net from "node:net";
 import { EventEmitter } from "node:events";
 import { fork } from "node:child_process";
-import fs from "node:fs";
-import { resolve } from "node:path";
-
-const createSocketPair = async () => {
-  const pipeName = `\0\\${Math.random()}`;
-  const { serverConn, clientConn, server } = await new Promise((resolve) => {
-    let clientConn;
-    const server = net.createServer((serverConn) => {
-      resolve({ serverConn, clientConn, server });
-    });
-    server.listen(pipeName, () => {
-      clientConn = net.createConnection(pipeName, () => {});
-    });
-  });
-  return {
-    stdoutWriter: serverConn,
-    stdoutReader: clientConn,
-    stderrWriter: clientConn,
-    stderrReader: serverConn,
-    close: () => {
-      clientConn.destroy();
-      serverConn.destroy();
-      server.close();
-    },
-  };
-};
 
 const newWorker = () => {
-  const worker = fork("./child-process-handle/worker.js", {
+  const worker = fork("./child-process-dial/worker.js", {
     stdio: "inherit",
     // execPath: "/home/maxm/.bun/bin/bun",
   });
@@ -72,12 +45,13 @@ const spawnInWorker = async (res) => {
     // stdoutReader.on("data", (data) => {
     //   console.log("stdout", id, data.toString());
     // });
+    conn.pipe(res);
+    conn.on("close", () => {
+      console.log("con close");
+    });
     worker.ee.on(id, (msg, data) => {
+      console.log(msg, data);
       if (msg == "exit") {
-        conn.pipe(res).on("end", () => {
-          close();
-          resolve("hi\n");
-        });
       }
     });
   });
@@ -89,4 +63,7 @@ http
     // assert.equal(resp, "hi\n"); // no cheating!
     // res.end(resp);
   })
-  .listen(8001);
+  .listen(8001)
+  .on("listening", async () => {
+    await fetch("http://localhost:8001");
+  });

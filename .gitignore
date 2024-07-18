@@ -2,3 +2,4 @@ node_modules
 *.cpuprofile
 .DS_Store
 rust/target
+main.c

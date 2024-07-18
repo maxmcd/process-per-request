@@ -52,22 +52,19 @@ const spawnInWorker = async (res) => {
     await createSocketPair();
   const id = Math.random();
   // Send and wait for our response.
-  worker.worker.send([id, "spawn", ["echo", "hi"]], stderrWriter);
+  worker.worker.send([id, "spawn", ["echo", "hi"]], stdoutWriter);
 
   // worker.worker.send([id, "stderr", undefined], stderrWriter);
   return new Promise((resolve) => {
     // stdoutReader.on("data", (data) => {
     //   console.log("stdout", id, data.toString());
     // });
-    stdoutReader.on("close", () => {});
+    stdoutReader.on("close", () => {
+      console.log("stdout close");
+    });
     worker.ee.on(id, (msg, data) => {
       if (msg == "exit") {
         console.log("exit", id);
-        stderrReader.pipe(res).on("close", () => {
-          console.log("end", id);
-          resolve();
-          close();
-        });
       }
     });
   });
@@ -77,4 +74,7 @@ http
   .createServer(async (_, res) => {
     await spawnInWorker(res);
   })
-  .listen(8001);
+  .listen(8001)
+  .on("listening", () => {
+    fetch("http://localhost:8001");
+  });

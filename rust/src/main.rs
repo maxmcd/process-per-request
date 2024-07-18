@@ -29,7 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 }
 
 async fn hello(_: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
-    let output = Command::new("echo").arg("hi")
+    let output = Command::new("cat").arg("../main.c")
         .output().await.unwrap();
 
     Ok(Response::new(Full::new(output.stdout.into())))

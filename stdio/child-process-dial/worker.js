@@ -8,10 +8,10 @@ process.on("message", (message, handle) => {
   if (type == "spawn") {
     let clientConn = net.createConnection(pipeName, () => {
       const [cmd, ...args] = data;
-      let child = spawn(cmd, args, { stdio: ["pipe", clientConn, "pipe"] });
+      let child = spawn(cmd, args, { stdio: ["pipe", "pipe", "pipe"] });
+      child.stdout.pipe(clientConn);
       child.on("error", (error) => console.log("error", error));
       child.on("exit", (code) => {
-        clientConn.end();
         process.send([id, "exit"]);
       });
     });

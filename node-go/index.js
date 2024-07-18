@@ -1,6 +1,6 @@
+import { spawn } from "node:child_process";
 import { PassThrough } from "node:stream";
 import http from "node:http";
-import { fork } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { Pool } from "lightning-pool";
 
@@ -29,9 +29,8 @@ class StdioPassthrough {
 
 const factory = {
   create: async function (opts) {
-    const cp = fork("./process-per-process/worker.js", {
-      stdio: "pipe",
-      execPath: "/home/maxm/.bun/bin/bun",
+    const cp = spawn("go", ["run", "main.go"], {
+      stdio: ["pipe", "pipe", "pipe", "ipc"],
     });
     const ee = new EventEmitter();
     cp.on("message", ([type, msg]) => ee.emit(type, msg));
@@ -49,12 +48,12 @@ const factory = {
   },
 };
 
-const pool = new Pool(factory, { max: 8, min: 8 });
+const pool = new Pool(factory, { max: 30, min: 8 });
 
 http
   .createServer(async (_, res) => {
     const swimmer = await pool.acquire();
-    swimmer.cp.send(["echo", "hi"]);
+    swimmer.cp.send({ msg: ["echo", "hi"] });
     await new Promise((resolve) => swimmer.ee.once("exit", resolve));
     swimmer.stdio.stdout.pipe(res);
     pool.release(swimmer);

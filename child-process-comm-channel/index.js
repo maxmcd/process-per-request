@@ -22,7 +22,6 @@ const readByteStreams = (conn, ee) => {
     while (buffer.length >= 5) {
       const id = buffer.readInt32LE(0);
       const type = buffer.readInt8(4);
-
       if (type > MessageType.STDERR) {
         if (buffer.length >= 5) {
           ee.emit(id, type);
@@ -35,8 +34,7 @@ const readByteStreams = (conn, ee) => {
           // Header + length field
           const length = buffer.readInt32LE(5);
           if (buffer.length >= 9 + length) {
-            const payload = buffer.subarray(9, 9 + length);
-            ee.emit(id, type, payload);
+            ee.emit(id, type, buffer.subarray(9, 9 + length));
             buffer = buffer.subarray(9 + length);
           } else {
             break; // Not enough data for full message, wait for more
@@ -72,9 +70,11 @@ const newWorker = async () => {
 
 // Spawn 8 worker threads.
 const workers = await Promise.all(Array.from({ length: 8 }, newWorker));
+const randomWorker = () => workers[Math.floor(Math.random() * workers.length)];
+
+// Alternative load balancing strategies.
 let count = 0;
 const pickWorkerInOrder = () => workers[(count += 1) % workers.length];
-const randomWorker = () => workers[Math.floor(Math.random() * workers.length)];
 const pickWorkerWithLeastRequests = () =>
   workers.reduce((selectedWorker, worker) =>
     worker.requests < selectedWorker.requests ? worker : selectedWorker
@@ -84,15 +84,12 @@ const spawnInWorker = async (res) => {
   const worker = randomWorker();
   worker.requests += 1;
   const id = randomI32();
-
   worker.child.send([id, "spawn", ["cat", ["main.c"]]]);
-  let resp = "";
   worker.ee.on(id, (msg, data) => {
-    if (msg == MessageType.STDOUT) {
-      resp += data.toString();
-    }
+    if (msg == MessageType.STDOUT) res.write(data);
+    if (msg == MessageType.STDERR) res.write(data);
     if (msg == MessageType.STDOUT_CLOSE) {
-      res.end(resp);
+      res.end();
       worker.requests -= 1;
       worker.ee.removeAllListeners(id);
     }

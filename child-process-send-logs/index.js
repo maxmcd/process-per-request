@@ -20,9 +20,10 @@ const spawnInWorker = async (res) => {
   const worker = randomWorker();
   const id = Math.random();
   // Send and wait for our response.
-  worker.worker.send([id, "cat", "../main.c"]);
+  worker.worker.send([id, "cat", "main.c"]);
   worker.ee.on(id, ([e, data]) => {
     if (e === "stdout") res.write(data);
+    if (e === "stderr") res.write(data);
     if (e === "exit") res.end();
   });
 };

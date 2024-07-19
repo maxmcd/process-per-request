@@ -6,7 +6,7 @@ import { fork } from "node:child_process";
 import fs from "node:fs";
 
 const newWorker = () => {
-  const worker = fork("./cmd-handle/worker.js", {
+  const worker = fork("./stdio/cmd-handle/worker.js", {
     stdio: "inherit",
     // execPath: "/home/maxm/.bun/bin/bun",
   });

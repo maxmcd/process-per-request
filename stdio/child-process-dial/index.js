@@ -4,7 +4,7 @@ import { EventEmitter } from "node:events";
 import { fork } from "node:child_process";
 
 const newWorker = () => {
-  const worker = fork("./child-process-dial/worker.js", {
+  const worker = fork("./stdio/child-process-dial/worker.js", {
     stdio: "inherit",
     // execPath: "/home/maxm/.bun/bin/bun",
   });

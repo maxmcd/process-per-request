@@ -30,7 +30,7 @@ const createSocketPair = async () => {
 };
 
 const newWorker = () => {
-  const worker = fork("./child-process-handle/worker.js", {
+  const worker = fork("./stdio/child-process-handle/worker.js", {
     stdio: "inherit",
     // execPath: "/home/maxm/.bun/bin/bun",
   });

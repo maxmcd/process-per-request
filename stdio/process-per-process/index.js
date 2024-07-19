@@ -29,7 +29,7 @@ class StdioPassthrough {
 
 const factory = {
   create: async function (opts) {
-    const cp = fork("./process-per-process/worker.js", {
+    const cp = fork("./stdio/process-per-process/worker.js", {
       stdio: "pipe",
       execPath: "/home/maxm/.bun/bin/bun",
     });

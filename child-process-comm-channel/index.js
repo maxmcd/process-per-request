@@ -56,7 +56,7 @@ const newWorker = async () => {
   return await new Promise((resolve, reject) => {
     const server = net.createServer((conn) => {
       readByteStreams(conn, ee);
-      resolve({ conn, child, ee });
+      resolve({ conn, child, ee, requests: 0 });
     });
     server.listen(`\0${pipeName}`, () => {
       child = fork("./child-process-comm-channel/worker.js", [pipeName], {
@@ -71,23 +71,31 @@ const newWorker = async () => {
 };
 
 // Spawn 8 worker threads.
-const workers = await Promise.all(Array.from({ length: 20 }, newWorker));
+const workers = await Promise.all(Array.from({ length: 8 }, newWorker));
+let count = 0;
+const pickWorkerInOrder = () => workers[(count += 1) % workers.length];
 const randomWorker = () => workers[Math.floor(Math.random() * workers.length)];
+const pickWorkerWithLeastRequests = () =>
+  workers.reduce((selectedWorker, worker) =>
+    worker.requests < selectedWorker.requests ? worker : selectedWorker
+  );
 
 const spawnInWorker = async (res) => {
   const worker = randomWorker();
+  worker.requests += 1;
   const id = randomI32();
 
   worker.child.send([id, "spawn", ["cat", ["main.c"]]]);
-  return new Promise((resolve) => {
-    worker.ee.on(id, (msg, data) => {
-      if (msg == MessageType.STDOUT) {
-        res.write(data);
-      }
-      if (msg == MessageType.STDOUT_CLOSE) {
-        res.end();
-      }
-    });
+  let resp = "";
+  worker.ee.on(id, (msg, data) => {
+    if (msg == MessageType.STDOUT) {
+      resp += data.toString();
+    }
+    if (msg == MessageType.STDOUT_CLOSE) {
+      res.end(resp);
+      worker.requests -= 1;
+      worker.ee.removeAllListeners(id);
+    }
   });
 };
 

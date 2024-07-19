@@ -46,7 +46,7 @@ process.on("message", (message, handle) => {
       )
     );
     child.stderr.on("close", (data) =>
-      clientConn.write(Buffer.concat([i32Bytes(id), MessageType.STDOUT_CLOSE]))
+      clientConn.write(Buffer.concat([i32Bytes(id), MessageType.STDERR_CLOSE]))
     );
     child.on("error", (error) => console.log("error", error));
     child.on("exit", (code) => {

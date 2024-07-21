@@ -1,6 +1,6 @@
-use tokio::process::Command;
 use std::convert::Infallible;
 use std::net::SocketAddr;
+use tokio::process::Command;
 
 use http_body_util::Full;
 use hyper::body::Bytes;
@@ -29,8 +29,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 }
 
 async fn hello(_: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>>, Infallible> {
-    let output = Command::new("cat").arg("../main.c")
-        .output().await.unwrap();
+    let output = Command::new("cat").arg("../main.c").output().await.unwrap();
 
     Ok(Response::new(Full::new(output.stdout.into())))
 }

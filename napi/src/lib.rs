@@ -13,7 +13,7 @@ use napi::{Env, JsObject, Result};
 #[macro_use]
 extern crate napi_derive;
 
-#[napi]
+#[napi(ts_return_type = "Promise<number>")]
 pub fn op_spawn(
   env: Env,
   cmd: String,

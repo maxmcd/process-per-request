@@ -310,6 +310,6 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { spawn } = nativeBinding
+const { opSpawn } = nativeBinding
 
-module.exports.spawn = spawn
+module.exports.opSpawn = opSpawn

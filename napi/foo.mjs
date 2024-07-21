@@ -1,6 +1,6 @@
 import http from "node:http";
 
-import { spawn } from "./index.js";
+import { opSpawn } from "./index.js";
 
 // let foo = await testExecuteTokioCmd((ids, ...values) => {
 //   console.log("callback");
@@ -10,19 +10,25 @@ import { spawn } from "./index.js";
 
 http
   .createServer(async (_, res) => {
-    await spawn(
-      "bash",
-      ["-c", "kill -9 $$"],
-      (ids, code, signal) => {
-        console.log("exit code", code, signal);
+    const t0 = performance.now();
+    let pid = await opSpawn(
+      // "bash",
+      // ["-c", "kill -9 $$"],
+      // "cat",
+      // ["../main.c"],
+      "echo",
+      ["hi"],
+      (error, code, signal) => {
+        // console.log("exit code", code, signal);
       },
-      (ids, buf) => {
+      (error, buf) => {
         buf ? res.write(buf) : res.end();
       },
-      (ids, buf) => {
-        console.log("stderr buff", buf);
+      (error, buf) => {
+        // console.log("stderr buff", buf);
       }
     );
+    console.log(pid, "pid", performance.now() - t0);
   })
   .listen(8001)
   .on("listening", async () => {

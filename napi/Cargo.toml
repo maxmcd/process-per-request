@@ -1,0 +1,27 @@
+[package]
+edition = "2021"
+name = "napi"
+version = "0.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+futures = "0.3"
+# Default enable napi4 feature, see https://nodejs.org/api/n-api.html#node-api-version-matrix
+napi = { version = "2.12.2", default-features = false, features = [
+    "napi4",
+    "tokio_rt",
+    "serde-json",
+    "latin1",
+    "compat-mode",
+] }
+napi-derive = "2.12.2"
+tokio = { version = "1", features = ["default", "fs", "process", "io-util"] }
+
+[build-dependencies]
+napi-build = "2.0.1"
+
+[profile.release]
+lto = true
+strip = "symbols"
